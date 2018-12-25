@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	currentDir string = "/home/josh/"
+	currentDir string = "/home/josh/test1/"
 	currentFiles = []os.FileInfo{}
 	currentFileNames = []string{}
 )
@@ -73,7 +73,7 @@ func main() {
 
 	t.SetStyle("list.item.selected", tui.Style{Bg: tui.ColorBlue, Fg: tui.ColorWhite})
 
-	root := tui.NewHBox(, tui.NewScrollArea(l))
+	root := tui.NewHBox(okay, tui.NewScrollArea(l))
 	root.SetBorder(true)
 
 	ui, err := tui.New(root)
@@ -96,6 +96,18 @@ func main() {
 		l.RemoveItems()
 		l.AddItems(currentFileNames...)
 		l.SetSelected(0)
+	})
+
+	ui.SetKeybinding("Up", func() {
+		if l.Selected() > 0 {
+			l.Select(l.Selected()-1)
+		}
+	})
+
+	ui.SetKeybinding("Down", func() {
+		if l.Selected() < len(currentFileNames)-1 {
+			l.Select(l.Selected()+1)
+		}
 	})
 
 	if err := ui.Run(); err != nil {
