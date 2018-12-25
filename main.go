@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	currentDir string = "/home/josh/test1/"
+	currentDir string = "/home/josh/"
 	currentFiles = []os.FileInfo{}
 	currentFileNames = []string{}
+	lastIndex int = 0
 )
 
 
@@ -25,7 +26,7 @@ func getFileNames(files []os.FileInfo) []string {
 	return out
 }
 
-func changeDir(file os.FileInfo) {
+func changeDir(file os.FileInfo) bool {
 	if file.IsDir() {
 		files, err := ioutil.ReadDir(currentDir+file.Name()+"/")
 		if err != nil { log.Fatal(err) }
@@ -33,6 +34,8 @@ func changeDir(file os.FileInfo) {
 		currentDir = currentDir+file.Name()+"/"
 		currentFileNames = getFileNames(files)
 	}
+
+	return file.IsDir()
 }
 
 func getBackDir(dir string) string {
@@ -84,27 +87,32 @@ func main() {
 	ui.SetTheme(t)
 	ui.SetKeybinding("q", func() { ui.Quit() })
 
-	ui.SetKeybinding("Left", func() {
+	ui.SetKeybinding("h", func() {
 		goBackDir()
 		l.RemoveItems()
 		l.AddItems(currentFileNames...)
-		l.SetSelected(0)
+		l.SetSelected(lastIndex)
 	})
 
-	ui.SetKeybinding("Right", func() {
-		changeDir(currentFiles[l.Selected()])
+	ui.SetKeybinding("l", func() {
+		lastIndex = l.Selected()
+		isDir := changeDir(currentFiles[lastIndex])
 		l.RemoveItems()
 		l.AddItems(currentFileNames...)
-		l.SetSelected(0)
+		if isDir {
+			l.SetSelected(0)
+		} else {
+			l.SetSelected(lastIndex)
+		}
 	})
 
-	ui.SetKeybinding("Up", func() {
+	ui.SetKeybinding("k", func() {
 		if l.Selected() > 0 {
 			l.Select(l.Selected()-1)
 		}
 	})
 
-	ui.SetKeybinding("Down", func() {
+	ui.SetKeybinding("j", func() {
 		if l.Selected() < len(currentFileNames)-1 {
 			l.Select(l.Selected()+1)
 		}
