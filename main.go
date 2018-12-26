@@ -4,6 +4,7 @@ import (
 	"log"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/marcusolsson/tui-go"
@@ -57,6 +58,9 @@ func goRight(currentDir string, files []os.FileInfo, l *tui.List) (string, []os.
 		l.RemoveItems()
 		l.AddItems(getFileNames(files)...)
 		l.SetSelected(0)
+	} else {
+		_, err := exec.Command("/bin/bash", "-c", "xdg-open '"+currentDir+files[lastIndex].Name()+"'").Output()
+		if err != nil { log.Fatal(err) }
 	}
 	return currentDir, files
 }
