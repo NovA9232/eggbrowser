@@ -9,9 +9,9 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-func goBackDir(currentDir string) string {
+func goBackDir(currentDir string) (string, string) {
 	currentDirSplit := strings.Split(currentDir, "/")
-	return strings.Join(currentDirSplit[:len(currentDirSplit)-2], "/")+"/"
+	return strings.Join(currentDirSplit[:len(currentDirSplit)-2], "/")+"/", currentDirSplit[len(currentDirSplit)-2] // Returns parent directory
 }
 
 func getFileNames(files []os.FileInfo) []string {
@@ -28,14 +28,61 @@ func listFolder(folderDir string) []os.FileInfo {
 	return files
 }
 
+func findInList(item string, list []string) int {
+	for i := 0; i < len(list); i++ {
+		if list[i] == item {
+			return i
+		}
+	}
+	return -1
+}
+
+func goLeft(currentDir string, l *tui.List) (string, []os.FileInfo) {
+	parent := ""
+	currentDir, parent = goBackDir(currentDir)
+	files := listFolder(currentDir)
+	fileNames := getFileNames(files)
+	l.RemoveItems()
+	l.AddItems(fileNames...)
+	l.SetSelected(findInList(parent, fileNames))
+
+	return currentDir, files
+}
+
+func goRight(currentDir string, files []os.FileInfo, l *tui.List) (string, []os.FileInfo) {
+	lastIndex := l.Selected()
+	if files[lastIndex].IsDir() {
+		currentDir = currentDir + l.SelectedItem() + "/"
+		files = listFolder(currentDir)
+		l.RemoveItems()
+		l.AddItems(getFileNames(files)...)
+		l.SetSelected(0)
+	}
+	return currentDir, files
+}
+
+func goUp(l *tui.List) {
+	tempSel := l.Selected()
+	if tempSel > 0 {
+		l.Select(tempSel-1)
+	}
+}
+
+func goDown(filesLen int, l *tui.List) {
+	tempSel := l.Selected()
+	if tempSel < filesLen-1 {
+		l.Select(tempSel+1)
+	}
+}
+
+
 
 func main() {
 	t := tui.NewTheme()
 	normal := tui.Style{Bg: tui.ColorWhite, Fg: tui.ColorBlack}
 	t.SetStyle("normal", normal)
 
-	currentDir := "/home/josh/"
-	lastIndex := 0
+	currentDir := "/home/josh/Important images/"
 
 	files, err := ioutil.ReadDir(currentDir)
 	if err != nil { log.Fatal(err) }
@@ -63,38 +110,17 @@ func main() {
 	ui.SetTheme(t)
 	ui.SetKeybinding("q", func() { ui.Quit() })
 
-	ui.SetKeybinding("h", func() {
-		currentDir = goBackDir(currentDir)
-		files = listFolder(currentDir)
-		l.RemoveItems()
-		l.AddItems(getFileNames(files)...)
-		l.SetSelected(0)
-	})
+	ui.SetKeybinding("h", func() { currentDir, files = goLeft(currentDir, l) })
+	ui.SetKeybinding("Left", func() { currentDir, files = goLeft(currentDir, l) })
 
-	ui.SetKeybinding("l", func() {
-		lastIndex = l.Selected()
-		if files[lastIndex].IsDir() {
-			currentDir = currentDir + l.SelectedItem() + "/"
-			files = listFolder(currentDir)
-			l.RemoveItems()
-			l.AddItems(getFileNames(files)...)
-			l.SetSelected(0)
-		}
-	})
+	ui.SetKeybinding("l", func() { currentDir, files = goRight(currentDir, files, l) })
+	ui.SetKeybinding("Right", func() { currentDir, files = goRight(currentDir, files, l) })
 
-	ui.SetKeybinding("k", func() {
-		tempSel := l.Selected()
-		if tempSel > 0 {
-			l.Select(tempSel-1)
-		}
-	})
+	ui.SetKeybinding("k", func() { goUp(l) })
+	ui.SetKeybinding("Up", func() { goUp(l) })
 
-	ui.SetKeybinding("j", func() {
-		tempSel := l.Selected()
-		if tempSel < len(files)-1 {
-			l.Select(tempSel+1)
-		}
-	})
+	ui.SetKeybinding("j", func() { goDown(len(files), l) })
+	ui.SetKeybinding("Down", func() { goDown(len(files), l) })
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
