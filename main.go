@@ -92,7 +92,6 @@ func main() {
 	if err != nil { log.Fatal(err) }
 
 	// A simple label.
-	okay := tui.NewLabel("Everything is fine.")
 
 	// A list with some items selected.
 	l := tui.NewList()
@@ -103,8 +102,9 @@ func main() {
 
 	t.SetStyle("list.item.selected", tui.Style{Bg: tui.ColorBlue, Fg: tui.ColorWhite})
 
-	root := tui.NewHBox(okay, tui.NewScrollArea(l))
-	root.SetBorder(true)
+	box := tui.NewHBox(l)
+	box.SetBorder(true)
+	root := tui.NewScrollArea(box)
 
 	ui, err := tui.New(root)
 	if err != nil {
