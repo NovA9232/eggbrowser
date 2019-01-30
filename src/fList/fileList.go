@@ -39,4 +39,5 @@ func copyFileList(dst, src *FileList) {
 	dst.Info = make([]os.FileInfo, len(src.Info))
 	copy(dst.Names, src.Names)
 	copy(dst.Info, src.Info)
+	dst.ListObj.SelectedRow = src.ListObj.SelectedRow
 }

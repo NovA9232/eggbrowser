@@ -25,7 +25,7 @@ func (f *MainFList) updateAllFileLists() {
   f.CurrFiles.UpdateList()
 }
 
-func (f *MainFList) updateNextFilesAfterScroll() {
+func (f *MainFList) updateNextFiles() {
   if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
     f.NextFiles.Dir = f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"/"
     f.NextFiles.UpdateList()
@@ -35,12 +35,12 @@ func (f *MainFList) updateNextFilesAfterScroll() {
 
 func (f *MainFList) ScrollDown() {
 	f.CurrFiles.ListObj.ScrollDown()
-  f.updateNextFilesAfterScroll()
+  f.updateNextFiles()
 }
 
 func (f *MainFList) ScrollUp() {
 	f.CurrFiles.ListObj.ScrollUp()
-  f.updateNextFilesAfterScroll()
+  f.updateNextFiles()
 }
 
 func (f *MainFList) GoLeft() {
@@ -54,6 +54,10 @@ func (f *MainFList) GoLeft() {
 }
 
 func (f *MainFList) GoRight() {
+  copyFileList(f.LastFiles, f.CurrFiles)
+  copyFileList(f.CurrFiles, f.NextFiles)
+  f.updateNextFiles()
+
   f.updateAllFileLists()
   //println(f.CurrFiles.Dir, f.NextFiles.Dir, f.CurrFiles.Names[0], f.NextFiles.Names[0])
 }
