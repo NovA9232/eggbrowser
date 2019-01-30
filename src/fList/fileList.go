@@ -32,3 +32,9 @@ func (f *FileList) UpdateList() {
 	f.Names = getFileNames(f.Info)
 	f.ListObj.Rows = f.Names
 }
+
+func copyFileList(dst, src *FileList) {
+  dst.Dir = src.Dir
+  dst.Names = src.Names
+  dst.Info = src.Info
+}
