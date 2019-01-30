@@ -2,131 +2,82 @@ package main
 
 import (
 	"log"
-	"io/ioutil"
-	"os"
-	"os/exec"
-	"strings"
+	//"fmt"
+	ui "github.com/gizak/termui"
 
-	"github.com/marcusolsson/tui-go"
+	"fList"
 )
 
-func goBackDir(currentDir string) (string, string) {
-	currentDirSplit := strings.Split(currentDir, "/")
-	return strings.Join(currentDirSplit[:len(currentDirSplit)-2], "/")+"/", currentDirSplit[len(currentDirSplit)-2] // Returns parent directory
+var (
+	currentDir string
+
+	fileView *fList.MainFList
+	grid *ui.Grid
+)
+
+
+func setupWidgets() {
+	fileView = fList.NewMainFList("/home/josh/programming/")
+
+	grid = ui.NewGrid()
+	termWidth, termHeight := ui.TerminalDimensions()
+	grid.SetRect(0, 0, termWidth, termHeight)
+
+	grid.Set(
+		ui.NewRow(1.0, // One row
+			ui.NewCol(1.0/3, fileView.LastFiles.ListObj),  // 3 columns
+			ui.NewCol(1.0/3, fileView.CurrFiles.ListObj),
+			ui.NewCol(1.0/3, fileView.NextFiles.ListObj),
+		),
+	)
 }
 
-func getFileNames(files []os.FileInfo) []string {
-	var out []string
-	for i := 0; i < len(files); i++ {
-		out = append(out, files[i].Name())
-	}
-	return out
-}
-
-func listFolder(folderDir string) []os.FileInfo {
-	files, err := ioutil.ReadDir(folderDir)
-	if err != nil { log.Fatal(err) }
-	return files
-}
-
-func findInList(item string, list []string) int {
-	for i := 0; i < len(list); i++ {
-		if list[i] == item {
-			return i
+func mainLoop() {
+	uiEvents := ui.PollEvents()
+	for {
+		e := <-uiEvents
+		//fmt.Println(e)
+		switch e.ID {
+			case "q", "<C-c>":
+				return
+			case "j", "<Down>":
+				fileView.ScrollDown()
+				ui.Render(grid)
+			case "k", "<Up>":
+				fileView.ScrollUp()
+				ui.Render(grid)
+			case "h", "<Left>":
+				fileView.GoLeft()
+				ui.Render(grid)
+			case "l", "<Right>":
+				fileView.GoRight()
+				ui.Render(grid)
 		}
 	}
-	return -1
 }
-
-func goLeft(currentDir string, l *tui.List) (string, []os.FileInfo) {
-	parent := ""
-	currentDir, parent = goBackDir(currentDir)
-	files := listFolder(currentDir)
-	fileNames := getFileNames(files)
-	l.RemoveItems()
-	l.AddItems(fileNames...)
-	l.SetSelected(findInList(parent, fileNames))
-
-	return currentDir, files
-}
-
-func goRight(currentDir string, files []os.FileInfo, l *tui.List) (string, []os.FileInfo) {
-	lastIndex := l.Selected()
-	if files[lastIndex].IsDir() {
-		currentDir = currentDir + l.SelectedItem() + "/"
-		files = listFolder(currentDir)
-		l.RemoveItems()
-		l.AddItems(getFileNames(files)...)
-		l.SetSelected(0)
-	} else {
-		_, err := exec.Command("/bin/bash", "-c", "xdg-open '"+currentDir+files[lastIndex].Name()+"'").Output()
-		if err != nil { log.Fatal(err) }
-	}
-	return currentDir, files
-}
-
-func goUp(l *tui.List) {
-	tempSel := l.Selected()
-	if tempSel > 0 {
-		l.Select(tempSel-1)
-	}
-}
-
-func goDown(filesLen int, l *tui.List) {
-	tempSel := l.Selected()
-	if tempSel < filesLen-1 {
-		l.Select(tempSel+1)
-	}
-}
-
-
 
 func main() {
-	t := tui.NewTheme()
-	normal := tui.Style{Bg: tui.ColorWhite, Fg: tui.ColorBlack}
-	t.SetStyle("normal", normal)
-
-	currentDir := "/home/josh/Important images/"
-
-	files, err := ioutil.ReadDir(currentDir)
-	if err != nil { log.Fatal(err) }
-
-	// A simple label.
-
-	// A list with some items selected.
-	l := tui.NewList()
-	l.SetFocused(true)
-	l.AddItems(getFileNames(files)...)
-	l.SetSelected(0)
-
-
-	t.SetStyle("list.item.selected", tui.Style{Bg: tui.ColorBlue, Fg: tui.ColorWhite})
-
-	box := tui.NewHBox(l)
-	box.SetBorder(true)
-	root := tui.NewScrollArea(box)
-
-	ui, err := tui.New(root)
-	if err != nil {
-		log.Fatal(err)
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
+	defer ui.Close()
 
-	ui.SetTheme(t)
-	ui.SetKeybinding("q", func() { ui.Quit() })
+	setupWidgets()
+	ui.Render(grid)
 
-	ui.SetKeybinding("h", func() { currentDir, files = goLeft(currentDir, l) })
-	ui.SetKeybinding("Left", func() { currentDir, files = goLeft(currentDir, l) })
+	// l := widgets.NewList()
+	// l.Title = "List"
+	// var list []string
+	// for i := 0; i < 100; i++ {
+	// 	list = append(list, fmt.Sprintf("Num: %d", i))
+	// }
+	//
+	// l.Rows = list
+	// l.TextStyle = ui.NewStyle(ui.ColorBlue)
+	// l.WrapText = false
+	// l.SetRect(0, 0, 400, 50)
+	//
+	// ui.Render(l)
 
-	ui.SetKeybinding("l", func() { currentDir, files = goRight(currentDir, files, l) })
-	ui.SetKeybinding("Right", func() { currentDir, files = goRight(currentDir, files, l) })
-
-	ui.SetKeybinding("k", func() { goUp(l) })
-	ui.SetKeybinding("Up", func() { goUp(l) })
-
-	ui.SetKeybinding("j", func() { goDown(len(files), l) })
-	ui.SetKeybinding("Down", func() { goDown(len(files), l) })
-
-	if err := ui.Run(); err != nil {
-		log.Fatal(err)
-	}
+	mainLoop()
 }
