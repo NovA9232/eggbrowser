@@ -35,6 +35,8 @@ func (f *FileList) UpdateList() {
 
 func copyFileList(dst, src *FileList) {
   dst.Dir = src.Dir
-  dst.Names = src.Names
-  dst.Info = src.Info
+	dst.Names = make([]string, len(src.Names))
+	dst.Info = make([]os.FileInfo, len(src.Info))
+	copy(dst.Names, src.Names)
+	copy(dst.Info, src.Info)
 }

@@ -1,5 +1,7 @@
 package fList
 
+//import "fmt"
+
 type MainFList struct {  // More of a manger for the three FileLists
   LastFiles *FileList
   NextFiles *FileList
@@ -24,10 +26,10 @@ func (f *MainFList) updateAllFileLists() {
 }
 
 func (f *MainFList) updateNextFilesAfterScroll() {
-  f.NextFiles.Dir = f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]
   if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
-    f.NextFiles.Dir = f.NextFiles.Dir+"/"
+    f.NextFiles.Dir = f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"/"
     f.NextFiles.UpdateList()
+    //fmt.Println(f.NextFiles.Names)
   }
 }
 
@@ -43,28 +45,15 @@ func (f *MainFList) ScrollUp() {
 
 func (f *MainFList) GoLeft() {
   copyFileList(f.NextFiles, f.CurrFiles)
-  currDir := f.CurrFiles.Dir
-  //name := f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]
   copyFileList(f.CurrFiles, f.LastFiles)
-  back, _ := goBackDir(currDir)
-  //println(back)
-  f.LastFiles = NewFileList(back)
+
+  back, _ := goBackDir(f.CurrFiles.Dir)
+  //println(back, "back")
+  f.LastFiles.Dir = back
   f.updateAllFileLists()
 }
 
 func (f *MainFList) GoRight() {
-  copyFileList(f.LastFiles, f.CurrFiles)
-  currDir := f.CurrFiles.Dir
-  name := f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]
-  fileObj := f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow]
-  copyFileList(f.CurrFiles, f.NextFiles)
-  f.CurrFiles.ListObj.SelectedRow = 0
-  if fileObj.IsDir() {
-    f.NextFiles = NewFileList(currDir+name+"/"+)
-    println(currDir+name+"/")
-  } else {
-    f.NextFiles = NewFileList("/")
-  }
   f.updateAllFileLists()
   //println(f.CurrFiles.Dir, f.NextFiles.Dir, f.CurrFiles.Names[0], f.NextFiles.Names[0])
 }
