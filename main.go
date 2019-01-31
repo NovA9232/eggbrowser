@@ -17,7 +17,7 @@ var (
 
 
 func setupWidgets() {
-	fileView = fList.NewMainFList("/home/josh/programming/")
+	fileView = fList.NewMainFList("/home/josh/termui/")
 
 	grid = ui.NewGrid()
 	termWidth, termHeight := ui.TerminalDimensions()

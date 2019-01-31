@@ -34,13 +34,17 @@ func (f *MainFList) updateNextFiles() {
 }
 
 func (f *MainFList) ScrollDown() {
-	f.CurrFiles.ListObj.ScrollDown()
-  f.updateNextFiles()
+  if len(f.CurrFiles.Names) > 0 {
+    f.CurrFiles.ListObj.ScrollDown()
+    f.updateNextFiles()
+  }
 }
 
 func (f *MainFList) ScrollUp() {
-	f.CurrFiles.ListObj.ScrollUp()
-  f.updateNextFiles()
+  if len(f.CurrFiles.Names) > 0 {
+  	f.CurrFiles.ListObj.ScrollUp()
+    f.updateNextFiles()
+  }
 }
 
 func (f *MainFList) GoLeft() {
