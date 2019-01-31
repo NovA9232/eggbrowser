@@ -17,7 +17,7 @@ var (
 
 
 func setupWidgets() {
-	fileView = fList.NewMainFList("/home/josh/termui/")
+	fileView = fList.NewMainFList("/home/josh/programming/")
 
 	grid = ui.NewGrid()
 	termWidth, termHeight := ui.TerminalDimensions()
@@ -51,6 +51,12 @@ func mainLoop() {
 				ui.Render(grid)
 			case "l", "<Right>":
 				fileView.GoRight()
+				ui.Render(grid)
+			case "<PageUp>":
+				fileView.PageUp()
+				ui.Render(grid)
+			case "<PageDown>":
+				fileView.PageDown()
 				ui.Render(grid)
 		}
 	}

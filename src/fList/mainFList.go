@@ -1,6 +1,6 @@
 package fList
 
-//import "fmt"
+// import "fmt"
 
 type MainFList struct {  // More of a manger for the three FileLists
   LastFiles *FileList
@@ -47,14 +47,29 @@ func (f *MainFList) ScrollUp() {
   }
 }
 
+func (f *MainFList) PageUp() {
+  if len(f.CurrFiles.Names) > 0 {
+    f.CurrFiles.ListObj.PageUp()
+    f.updateNextFiles()
+  }
+}
+
+func (f *MainFList) PageDown() {
+  if len(f.CurrFiles.Names) > 0 {
+    f.CurrFiles.ListObj.PageDown()
+    f.updateNextFiles()
+  }
+}
+
 func (f *MainFList) GoLeft() {
   copyFileList(f.NextFiles, f.CurrFiles)
   copyFileList(f.CurrFiles, f.LastFiles)
 
-  back, _ := goBackDir(f.CurrFiles.Dir)
+  back, name := goBackDir(f.CurrFiles.Dir)
   //println(back, "back")
   f.LastFiles.Dir = back
   f.updateAllFileLists()
+  f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
 }
 
 func (f *MainFList) GoRight() {
