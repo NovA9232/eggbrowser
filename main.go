@@ -53,7 +53,7 @@ func mainLoop() {
 			case "h", "<Left>":
 				fileView.GoLeft()
 				ui.Render(grid)
-			case "l", "<Right>":
+			case "l", "<Right>", "<Enter>":
 				fileView.GoRight()
 				ui.Render(grid)
 			case "<PageUp>":

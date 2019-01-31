@@ -1,9 +1,9 @@
 package fList
 
 import (
-  "fmt"
   "log"
   ui "github.com/gizak/termui"
+  "os/exec"
 )
 
 var (
@@ -45,7 +45,7 @@ func (f *MainFList) updateAllFileLists() {
 }
 
 func (f *MainFList) updateNextFiles() {
-  log.Output(0, fmt.Sprintf("File name nextFiles: %s, Is a dir: %s", f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].Name(), f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir()))
+  //log.Output(0, fmt.Sprintf("File name nextFiles: %s, Is a dir: %s", f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].Name(), f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir()))
   if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
     f.NextFiles.Dir = f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"/"
     f.NextFiles.UpdateList()
@@ -103,5 +103,8 @@ func (f *MainFList) GoRight() {
     }
 
     f.updateAllFileLists()
+  } else {
+    _, err := exec.Command("/bin/bash", "-c", "xdg-open '"+f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"'").Output()
+		if err != nil { log.Fatal(err) }
   }
 }
