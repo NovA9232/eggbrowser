@@ -27,7 +27,7 @@ func NewFileList(dir string) *FileList {
 	return f
 }
 
-func (f *FileList) UpdateList() {
+func (f *FileList) UpdateList() { // Also updates title to the directory
 	if f.Dir == "" {
 		f.Info = []os.FileInfo{}
 		f.Names = []string{}
@@ -36,6 +36,9 @@ func (f *FileList) UpdateList() {
 		f.Names = getFileNames(f.Info)
 	}
 	f.ListObj.Rows = f.Names
+	if f.ListObj.Title != "" {  // If it has a title, update it.
+		f.ListObj.Title = f.Dir
+	}
 }
 
 func copyFileList(dst, src *FileList) {

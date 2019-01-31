@@ -3,6 +3,12 @@ package fList
 import (
   "fmt"
   "log"
+  ui "github.com/gizak/termui"
+)
+
+var (
+  BordStyle ui.Style  // Border style
+  SelectStyleFolder ui.Style // Style for selected item
 )
 
 type MainFList struct {  // More of a manger for the three FileLists
@@ -19,7 +25,15 @@ func NewMainFList(dir string) *MainFList {
   f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
   f.NextFiles = NewFileList(dir+f.CurrFiles.Names[0]+"/")
 
-  f.CurrFiles.title = f.CurrFiles.Dir
+  f.CurrFiles.ListObj.Title = f.CurrFiles.Dir
+
+  f.CurrFiles.ListObj.BorderStyle = BordStyle
+  f.NextFiles.ListObj.BorderStyle = BordStyle
+  f.LastFiles.ListObj.BorderStyle = BordStyle
+
+  f.CurrFiles.ListObj.SelectedRowStyle = SelectStyleFolder
+  f.NextFiles.ListObj.SelectedRowStyle = SelectStyleFolder
+  f.LastFiles.ListObj.SelectedRowStyle = SelectStyleFolder  // Always folder style.
 
   return f
 }
@@ -84,7 +98,9 @@ func (f *MainFList) GoRight() {
   if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
     copyFileList(f.LastFiles, f.CurrFiles)
     copyFileList(f.CurrFiles, f.NextFiles)
-    f.updateNextFiles()
+    if len(f.CurrFiles.Names) > 0 {
+      f.updateNextFiles()
+    }
 
     f.updateAllFileLists()
   }

@@ -14,6 +14,9 @@ var (
 
 	fileView *fList.MainFList
 	grid *ui.Grid
+
+	BordStyle ui.Style
+	SelectStyleFolder ui.Style
 )
 
 
@@ -76,6 +79,12 @@ func setupLog(dest string) *os.File {
 func main() {
 	logFile := setupLog("out.log")
 	defer logFile.Close()
+
+	BordStyle := ui.NewStyle(ui.Color(6))
+	SelectStyleFolder := ui.NewStyle(ui.Color(6), ui.Color(7), ui.ModifierReverse)
+
+	fList.BordStyle = BordStyle
+	fList.SelectStyleFolder = SelectStyleFolder
 
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)
