@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	//"fmt"
+	"os"
 	ui "github.com/gizak/termui"
 
 	"fList"
@@ -17,7 +18,7 @@ var (
 
 
 func setupWidgets() {
-	fileView = fList.NewMainFList("/home/josh/programming/")
+	fileView = fList.NewMainFList("/home/josh/")
 
 	grid = ui.NewGrid()
 	termWidth, termHeight := ui.TerminalDimensions()
@@ -25,9 +26,9 @@ func setupWidgets() {
 
 	grid.Set(
 		ui.NewRow(1.0, // One row
-			ui.NewCol(1.0/3, fileView.LastFiles.ListObj),  // 3 columns
-			ui.NewCol(1.0/3, fileView.CurrFiles.ListObj),
-			ui.NewCol(1.0/3, fileView.NextFiles.ListObj),
+			ui.NewCol(2.0/10, fileView.LastFiles.ListObj),  // 3 columns
+			ui.NewCol(3.0/10, fileView.CurrFiles.ListObj),
+			ui.NewCol(5.0/10, fileView.NextFiles.ListObj),
 		),
 	)
 }
@@ -62,7 +63,20 @@ func mainLoop() {
 	}
 }
 
+func setupLog(dest string) *os.File {
+	f, err := os.OpenFile(dest, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+	    log.Fatalf("error opening file: %v", err)
+	}
+
+	log.SetOutput(f)
+	return f
+}
+
 func main() {
+	logFile := setupLog("out.log")
+	defer logFile.Close()
+
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)
 	}
@@ -70,20 +84,6 @@ func main() {
 
 	setupWidgets()
 	ui.Render(grid)
-
-	// l := widgets.NewList()
-	// l.Title = "List"
-	// var list []string
-	// for i := 0; i < 100; i++ {
-	// 	list = append(list, fmt.Sprintf("Num: %d", i))
-	// }
-	//
-	// l.Rows = list
-	// l.TextStyle = ui.NewStyle(ui.ColorBlue)
-	// l.WrapText = false
-	// l.SetRect(0, 0, 400, 50)
-	//
-	// ui.Render(l)
 
 	mainLoop()
 }

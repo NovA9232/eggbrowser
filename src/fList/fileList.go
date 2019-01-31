@@ -28,8 +28,13 @@ func NewFileList(dir string) *FileList {
 }
 
 func (f *FileList) UpdateList() {
-	f.Info = listFolder(f.Dir)
-	f.Names = getFileNames(f.Info)
+	if f.Dir == "" {
+		f.Info = []os.FileInfo{}
+		f.Names = []string{}
+	} else {
+		f.Info = listFolder(f.Dir)
+		f.Names = getFileNames(f.Info)
+	}
 	f.ListObj.Rows = f.Names
 }
 

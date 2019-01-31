@@ -31,6 +31,6 @@ func getFileNames(files []os.FileInfo) []string {
 
 func listFolder(folderDir string) []os.FileInfo {
 	files, err := ioutil.ReadDir(folderDir)
-	if err != nil { log.Fatal(err) }
+	if err != nil { log.Output(0, "ERROR: "+err.Error()) } // Probably just a permission error.
 	return files
 }

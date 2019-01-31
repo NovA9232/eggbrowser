@@ -1,6 +1,9 @@
 package fList
 
-// import "fmt"
+import (
+  "fmt"
+  "log"
+)
 
 type MainFList struct {  // More of a manger for the three FileLists
   LastFiles *FileList
@@ -16,6 +19,8 @@ func NewMainFList(dir string) *MainFList {
   f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
   f.NextFiles = NewFileList(dir+f.CurrFiles.Names[0]+"/")
 
+  f.CurrFiles.title = f.CurrFiles.Dir
+
   return f
 }
 
@@ -26,10 +31,14 @@ func (f *MainFList) updateAllFileLists() {
 }
 
 func (f *MainFList) updateNextFiles() {
+  log.Output(0, fmt.Sprintf("File name nextFiles: %s, Is a dir: %s", f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].Name(), f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir()))
   if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
     f.NextFiles.Dir = f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"/"
     f.NextFiles.UpdateList()
-    //fmt.Println(f.NextFiles.Names)
+    f.NextFiles.ListObj.SelectedRow = 0
+  } else {
+    f.NextFiles.Dir = ""
+    f.NextFiles.UpdateList()
   }
 }
 
@@ -66,17 +75,17 @@ func (f *MainFList) GoLeft() {
   copyFileList(f.CurrFiles, f.LastFiles)
 
   back, name := goBackDir(f.CurrFiles.Dir)
-  //println(back, "back")
   f.LastFiles.Dir = back
   f.updateAllFileLists()
   f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
 }
 
 func (f *MainFList) GoRight() {
-  copyFileList(f.LastFiles, f.CurrFiles)
-  copyFileList(f.CurrFiles, f.NextFiles)
-  f.updateNextFiles()
+  if f.CurrFiles.Info[f.CurrFiles.ListObj.SelectedRow].IsDir() {
+    copyFileList(f.LastFiles, f.CurrFiles)
+    copyFileList(f.CurrFiles, f.NextFiles)
+    f.updateNextFiles()
 
-  f.updateAllFileLists()
-  //println(f.CurrFiles.Dir, f.NextFiles.Dir, f.CurrFiles.Names[0], f.NextFiles.Names[0])
+    f.updateAllFileLists()
+  }
 }
