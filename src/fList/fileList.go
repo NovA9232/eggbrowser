@@ -6,6 +6,11 @@ import (
 	ui "github.com/gizak/termui"
 )
 
+var (
+  BordStyle ui.Style  // Border style
+  SelectStyleFolder ui.Style // Style for selected item
+)
+
 type FileList struct {
 	ListObj *w.List
 	Names []string
@@ -23,6 +28,9 @@ func NewFileList(dir string) *FileList {
 	f.ListObj.TextStyle = ui.NewStyle(ui.ColorGreen)
 	f.ListObj.WrapText = true
 	f.ListObj.Rows = f.Names
+
+	f.ListObj.BorderStyle = BordStyle
+	f.ListObj.SelectedRowStyle = SelectStyleFolder
 
 	return f
 }
