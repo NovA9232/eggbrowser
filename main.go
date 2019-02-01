@@ -57,10 +57,11 @@ func mainLoop() {
 				fileView.GoRight()
 				ui.Render(grid)
 			case "<PageUp>":
-				fileView.PageUp()
+				// fileView.PageUp()
+				fileView.CurrFiles.ListObj.HalfPageUp()
 				ui.Render(grid)
 			case "<PageDown>":
-				fileView.PageDown()
+				fileView.CurrFiles.ListObj.HalfPageDown()
 				ui.Render(grid)
 		}
 	}
