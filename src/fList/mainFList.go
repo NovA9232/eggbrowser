@@ -90,7 +90,9 @@ func (f *MainFList) GoRight() {
 
     f.updateAllFileLists()
   } else {
-    _, err := exec.Command("/bin/bash", "-c", "xdg-open '"+f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"'").Output()
-		if err != nil { log.Fatal(err) }
+		go func() {
+			_, err := exec.Command("/bin/bash", "-c", "xdg-open '"+f.CurrFiles.Dir+f.CurrFiles.Names[f.CurrFiles.ListObj.SelectedRow]+"'").Output()
+			if err != nil { log.Fatal(err) }
+		}()
   }
 }
