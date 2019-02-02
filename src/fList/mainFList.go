@@ -71,13 +71,15 @@ func (f *MainFList) PageDown() {
 }
 
 func (f *MainFList) GoLeft() {
-  copyFileList(f.NextFiles, f.CurrFiles)
-  copyFileList(f.CurrFiles, f.LastFiles)
+	if f.CurrFiles.Dir != "/" {
+		copyFileList(f.NextFiles, f.CurrFiles)
+		copyFileList(f.CurrFiles, f.LastFiles)
 
-  back, name := goBackDir(f.CurrFiles.Dir)
-  f.LastFiles.Dir = back
-  f.updateAllFileLists()
-  f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
+		back, name := goBackDir(f.CurrFiles.Dir)
+		f.LastFiles.Dir = back
+		f.updateAllFileLists()
+		f.LastFiles.ListObj.SelectedRow = uint(findInList(name, f.LastFiles.Names))
+	}
 }
 
 func (f *MainFList) GoRight() {
